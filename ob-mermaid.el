@@ -44,34 +44,34 @@
 (defun org-babel-execute:mermaid (body params)
   (let* ((out-file (or (cdr (assoc :file params))
                        (error "mermaid requires a \":file\" header argument")))
-	 (theme (cdr (assoc :theme params)))
-	 (width (cdr (assoc :width params)))
-	 (height (cdr (assoc :height params)))
-	 (background-color (cdr (assoc :background-color params)))
-	 (mermaid-config-file (cdr (assoc :mermaid-config-file params)))
-	 (css-file (cdr (assoc :css-file params)))
-	 (pupeteer-config-file (cdr (assoc :pupeteer-config-file params)))
+         (theme (cdr (assoc :theme params)))
+         (width (cdr (assoc :width params)))
+         (height (cdr (assoc :height params)))
+         (background-color (cdr (assoc :background-color params)))
+         (mermaid-config-file (cdr (assoc :mermaid-config-file params)))
+         (css-file (cdr (assoc :css-file params)))
+         (scale (cdr (assoc :scale params)))
+         (pdf-fit ;; (cdr (assoc :pdf-fit params))
+          t)
+         (quiet (cdr (assoc :quiet params)))
+         (puppeteer-config-file (cdr (assoc :puppeteer-config-file params)))
          (temp-file (org-babel-temp-file "mermaid-"))
          (mmdc (or ob-mermaid-cli-path
                    (executable-find "mmdc")
                    (error "`ob-mermaid-cli-path' is not set and mmdc is not in `exec-path'")))
          (cmd (concat (shell-quote-argument (expand-file-name mmdc))
-                      " -i " (org-babel-process-file-name temp-file)
-                      " -o " (org-babel-process-file-name out-file)
-		      (when theme
-			(concat " -t " theme))
-		      (when background-color
-			(concat " -b " background-color))
-		      (when width
-			(concat " -w " width))
-		      (when height
-			(concat " -H " height))
-		      (when mermaid-config-file
-			(concat " -c " (org-babel-process-file-name mermaid-config-file)))
-		      (when css-file
-			(concat " -C " (org-babel-process-file-name css-file)))
-                      (when pupeteer-config-file
-                        (concat " -p " (org-babel-process-file-name pupeteer-config-file))))))
+                      " --input " (org-babel-process-file-name temp-file)
+                      " --output " (org-babel-process-file-name out-file)
+                      (when theme (concat " --theme " theme))
+                      (when width (concat " --width " (format "%s" width)))
+                      (when height (concat " --height " (format "%s" height)))
+                      (when background-color (concat " --backgroundColor " background-color))
+                      (when mermaid-config-file (concat " --configFile " (org-babel-process-file-name mermaid-config-file)))
+                      (when css-file (concat " --cssFile " (org-babel-process-file-name css-file)))
+                      (when scale (concat " --scale " (format "%s" scale)))
+                      (when pdf-fit " --pdfFit ")
+                      (when quiet " --quiet ")
+                      (when puppeteer-config-file (concat " --puppeteerConfigFile " (org-babel-process-file-name puppeteer-config-file))))))
     (unless (file-executable-p mmdc)
       ;; cannot happen with `executable-find', so we complain about
       ;; `ob-mermaid-cli-path'
